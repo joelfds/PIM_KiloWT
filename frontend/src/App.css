@@ -305,6 +305,18 @@ body {
   background: var(--bg3);
 }
 
+.table tr.table-row-selected {
+  background: rgba(0, 200, 150, 0.1);
+}
+
+.table tr.table-row-selected:hover {
+  background: rgba(0, 200, 150, 0.15);
+}
+
+.table tr {
+  cursor: pointer;
+}
+
 .progress-bar {
   width: 100%;
   height: 8px;
@@ -596,6 +608,40 @@ body {
 .usage-fill {
   height: 100%;
   background: var(--green);
+}
+
+/* Mug Attributes Grid */
+.attributes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.attribute-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attribute-field label {
+  font-size: 12px;
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.attribute-field select {
+  padding: 8px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.attribute-field select:focus {
+  outline: none;
+  border-color: var(--blue);
 }
 
 .import-export {

@@ -42,65 +42,149 @@ db.serialize(() => {
   db.get("SELECT COUNT(*) as count FROM products", (err, row) => {
     if (row.count === 0) {
       const seedProducts = [
+        // Mugs (original)
         {
-          sku: 'AUD-0001',
-          name: 'Wireless Headphones',
-          description: 'High-quality wireless headphones with noise cancellation.',
-          price: 49.99,
-          stock: 100,
-          category: 'Audio',
+          sku: 'MUG-0001',
+          name: 'Classic White Ceramic Mug',
+          description: 'Timeless white ceramic mug perfect for coffee or tea.',
+          price: 12.99,
+          stock: 150,
+          category: 'Mugs',
           status: 'Active',
-          attributes: JSON.stringify({ Color: 'Black', Connectivity: 'Bluetooth 5.0', Battery: '30hr', 'Noise Cancellation': 'Yes' })
+          attributes: JSON.stringify({ Color: 'White', Size: '11oz', Material: 'Ceramic', Handle: 'Yes', Dishwasher: 'Safe' })
         },
         {
-          sku: 'ACC-0002',
-          name: 'USB-C Hub 7-in-1',
-          description: 'Versatile USB-C hub with multiple ports.',
-          price: 29.99,
-          stock: 50,
+          sku: 'MUG-0002',
+          name: 'Travel Insulated Mug',
+          description: 'Stainless steel insulated mug that keeps drinks hot or cold for hours.',
+          price: 24.99,
+          stock: 75,
+          category: 'Mugs',
+          status: 'Active',
+          attributes: JSON.stringify({ Color: 'Silver', Size: '16oz', Material: 'Stainless Steel', Insulation: 'Double Wall', Lid: 'Yes' })
+        },
+        {
+          sku: 'MUG-0003',
+          name: 'Colorful Enamel Mug',
+          description: 'Vibrant enamel mug with a retro design.',
+          price: 18.99,
+          stock: 60,
+          category: 'Mugs',
+          status: 'Active',
+          attributes: JSON.stringify({ Color: 'Blue', Size: '12oz', Material: 'Enamel', Handle: 'Yes', Dishwasher: 'Safe' })
+        },
+        {
+          sku: 'MUG-0004',
+          name: 'Large Family Size Mug',
+          description: 'Extra large ceramic mug perfect for generous servings.',
+          price: 16.99,
+          stock: 45,
+          category: 'Mugs',
+          status: 'Active',
+          attributes: JSON.stringify({ Color: 'White', Size: '20oz', Material: 'Ceramic', Handle: 'Yes', Dishwasher: 'Safe' })
+        },
+        {
+          sku: 'MUG-0005',
+          name: 'Matte Black Mug',
+          description: 'Sleek matte black ceramic mug with modern appeal.',
+          price: 14.99,
+          stock: 0,
+          category: 'Mugs',
+          status: 'Inactive',
+          attributes: JSON.stringify({ Color: 'Black', Size: '11oz', Material: 'Ceramic', Handle: 'Yes', Dishwasher: 'Safe' })
+        },
+        {
+          sku: 'MUG-0006',
+          name: 'Glass Coffee Mug',
+          description: 'Elegant clear glass mug that showcases your beverage.',
+          price: 9.99,
+          stock: 90,
+          category: 'Mugs',
+          status: 'Draft',
+          attributes: JSON.stringify({ Color: 'Clear', Size: '8oz', Material: 'Glass', Handle: 'Yes', Dishwasher: 'Safe' })
+        },
+        // T-Shirts
+        {
+          sku: 'TSHIRT-001',
+          name: 'Cotton Graphic Tee',
+          description: 'Soft cotton t-shirt with bold graphic print.',
+          price: 24.99,
+          stock: 200,
+          category: 'T-Shirts',
+          status: 'Active',
+          attributes: JSON.stringify({ Size: 'M', Color: 'Black', Material: 'Cotton', Fit: 'Regular' })
+        },
+        {
+          sku: 'TSHIRT-002',
+          name: 'Premium Oversized Tee',
+          description: 'High-quality oversized t-shirt for casual wear.',
+          price: 32.99,
+          stock: 120,
+          category: 'T-Shirts',
+          status: 'Active',
+          attributes: JSON.stringify({ Size: 'L', Color: 'White', Material: 'Organic Cotton', Fit: 'Oversized' })
+        },
+        {
+          sku: 'TSHIRT-003',
+          name: 'Performance Tech Tee',
+          description: 'Breathable performance t-shirt for active lifestyle.',
+          price: 28.99,
+          stock: 85,
+          category: 'T-Shirts',
+          status: 'Draft',
+          attributes: JSON.stringify({ Size: 'S', Color: 'Navy', Material: 'Polyester Blend', Fit: 'Slim' })
+        },
+        // Hoodies
+        {
+          sku: 'HOODIE-001',
+          name: 'Cozy Fleece Hoodie',
+          description: 'Warm fleece hoodie perfect for cooler days.',
+          price: 49.99,
+          stock: 95,
+          category: 'Hoodies',
+          status: 'Active',
+          attributes: JSON.stringify({ Size: 'XL', Color: 'Gray', Material: 'Fleece', Hood: 'Yes', Pocket: 'Kangaroo' })
+        },
+        {
+          sku: 'HOODIE-002',
+          name: 'Zip-Up Hoodie',
+          description: 'Convenient zip-up hoodie with adjustable drawstring.',
+          price: 54.99,
+          stock: 65,
+          category: 'Hoodies',
+          status: 'Inactive',
+          attributes: JSON.stringify({ Size: 'M', Color: 'Black', Material: 'Cotton Blend', Hood: 'Yes', Zipper: 'Full' })
+        },
+        // Accessories
+        {
+          sku: 'CAP-001',
+          name: 'Embroidered Baseball Cap',
+          description: 'Classic baseball cap with embroidered logo.',
+          price: 19.99,
+          stock: 180,
           category: 'Accessories',
           status: 'Active',
-          attributes: JSON.stringify({ Ports: '7', Color: 'Silver', HDMI: '4K@60Hz', 'Max Power': '100W' })
+          attributes: JSON.stringify({ Size: 'One Size', Color: 'Black', Material: 'Cotton Twill', Adjustable: 'Yes' })
         },
         {
-          sku: 'KEY-0003',
-          name: 'Mechanical Keyboard TKL',
-          description: 'Tenkeyless mechanical keyboard with RGB lighting.',
-          price: 89.99,
-          stock: 30,
-          category: 'Keyboards',
+          sku: 'BAG-001',
+          name: 'Canvas Tote Bag',
+          description: 'Durable canvas tote for everyday use.',
+          price: 22.99,
+          stock: 110,
+          category: 'Accessories',
           status: 'Active',
-          attributes: JSON.stringify({ Switch: 'Cherry MX Red', Layout: 'TKL', Backlight: 'RGB', Wireless: 'No' })
+          attributes: JSON.stringify({ Size: 'Medium', Color: 'Natural', Material: 'Canvas', Handles: 'Long' })
         },
         {
-          sku: 'CAM-0004',
-          name: '4K Webcam Pro',
-          description: 'Professional 4K webcam for streaming.',
-          price: 119.99,
-          stock: 0,
-          category: 'Cameras',
-          status: 'Inactive',
-          attributes: JSON.stringify({ Resolution: '4K', FPS: '30', Autofocus: 'Yes', FOV: '90 degrees' })
-        },
-        {
-          sku: 'MON-0005',
-          name: '27" IPS Gaming Monitor',
-          description: '27-inch IPS gaming monitor with high refresh rate.',
-          price: 299.99,
-          stock: 15,
-          category: 'Monitors',
+          sku: 'PHONE-001',
+          name: 'Protective Phone Case',
+          description: 'Shockproof phone case with raised edges.',
+          price: 15.99,
+          stock: 250,
+          category: 'Accessories',
           status: 'Draft',
-          attributes: JSON.stringify({ Size: '27"', 'Refresh Rate': '144Hz', Panel: 'IPS', Resolution: '2560x1440' })
-        },
-        {
-          sku: 'LAP-0006',
-          name: 'UltraBook Pro 14',
-          description: 'Lightweight ultrabook with M3 processor.',
-          price: 1299.99,
-          stock: 8,
-          category: 'Laptops',
-          status: 'Active',
-          attributes: JSON.stringify({ RAM: '16GB', Storage: '512GB SSD', Processor: 'M3', 'Battery Life': '18hr' })
+          attributes: JSON.stringify({ Compatible: 'iPhone 15', Color: 'Clear', Material: 'TPU', Drop: '10ft' })
         }
       ];
 
@@ -115,20 +199,15 @@ db.serialize(() => {
 
 // Routes
 app.get('/api/products', (req, res) => {
-  const { search, category, status, sort, direction = 'asc' } = req.query;
+  const { search, status, sort, direction = 'asc' } = req.query;
 
   let query = 'SELECT * FROM products WHERE 1=1';
   const params = [];
 
   if (search) {
-    query += ' AND (name LIKE ? OR sku LIKE ? OR description LIKE ? OR category LIKE ?)';
+    query += ' AND (name LIKE ? OR sku LIKE ? OR description LIKE ?)';
     const searchTerm = `%${search}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
-  }
-
-  if (category) {
-    query += ' AND category = ?';
-    params.push(category);
+    params.push(searchTerm, searchTerm, searchTerm);
   }
 
   if (status) {
@@ -137,7 +216,7 @@ app.get('/api/products', (req, res) => {
   }
 
   if (sort) {
-    const validSorts = ['sku', 'name', 'category', 'price', 'stock', 'status', 'createdAt', 'updatedAt'];
+    const validSorts = ['sku', 'name', 'price', 'stock', 'status', 'createdAt', 'updatedAt'];
     if (validSorts.includes(sort)) {
       query += ` ORDER BY ${sort} ${direction.toUpperCase()}`;
     }
@@ -148,7 +227,7 @@ app.get('/api/products', (req, res) => {
       res.status(500).json({ error: err.message });
       return;
     }
-    // Parse attributes JSON
+    // Parse attributes JSON and remove category field
     rows.forEach(row => {
       if (row.attributes) {
         try {
@@ -159,6 +238,7 @@ app.get('/api/products', (req, res) => {
       } else {
         row.attributes = {};
       }
+      delete row.category;
     });
     res.json(rows);
   });
@@ -187,7 +267,7 @@ app.get('/api/products/:id', (req, res) => {
 });
 
 app.post('/api/products', (req, res) => {
-  const { sku, name, description, price, stock, category, status, imageUrl, attributes } = req.body;
+  const { sku, name, description, price, stock, status, imageUrl, attributes } = req.body;
 
   if (!name || !sku) {
     return res.status(400).json({ error: 'Name and SKU are required' });
@@ -195,9 +275,10 @@ app.post('/api/products', (req, res) => {
 
   const attributesJson = JSON.stringify(attributes || {});
 
+  const fixedCategory = 'Mugs';
   db.run(`INSERT INTO products (sku, name, description, price, stock, category, status, imageUrl, attributes)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [sku, name, description, price, stock, category, status || 'Draft', imageUrl, attributesJson],
+    [sku, name, description, price, stock, fixedCategory, status || 'Draft', imageUrl, attributesJson],
     function(err) {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -214,7 +295,7 @@ app.post('/api/products', (req, res) => {
 
 app.put('/api/products/:id', (req, res) => {
   const { id } = req.params;
-  const { sku, name, description, price, stock, category, status, imageUrl, attributes } = req.body;
+  const { sku, name, description, price, stock, status, imageUrl, attributes } = req.body;
 
   if (!name || !sku) {
     return res.status(400).json({ error: 'Name and SKU are required' });
@@ -222,11 +303,12 @@ app.put('/api/products/:id', (req, res) => {
 
   const attributesJson = JSON.stringify(attributes || {});
 
+  const fixedCategory = 'Mugs';
   db.run(`UPDATE products SET
           sku = ?, name = ?, description = ?, price = ?, stock = ?, category = ?,
           status = ?, imageUrl = ?, attributes = ?, updatedAt = CURRENT_TIMESTAMP
           WHERE id = ?`,
-    [sku, name, description, price, stock, category, status, imageUrl, attributesJson, id],
+    [sku, name, description, price, stock, fixedCategory, status, imageUrl, attributesJson, id],
     function(err) {
       if (err) {
         res.status(500).json({ error: err.message });

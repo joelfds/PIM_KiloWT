@@ -16,7 +16,7 @@ function App() {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/products', label: 'Products', icon: '📦' },
-    { path: '/store', label: 'Dummy Store', icon: '🏪' },
+    { path: '/store', label: 'Mug Store', icon: '🏪' },
     { path: '/sync', label: 'Sync Log', icon: '🔄' },
     { path: '/attributes', label: 'Attributes', icon: '🏷️' },
     { path: '/import-export', label: 'Import / Export', icon: '📤' }
@@ -35,7 +35,7 @@ function App() {
     <div className="app">
       <div className="sidebar">
         <div className="sidebar-header">
-          <div className="logo">PIM Studio</div>
+          <div className="logo">Mug Store PIM</div>
           <div className="subtitle">Kilowott Hackathon</div>
         </div>
         <nav className="nav">

@@ -75,7 +75,7 @@ function Dashboard() {
       <div className="card">
         <h3>Category Breakdown</h3>
         <div className="chart">
-          {stats.categories.map(([category, count]) => (
+          {stats.categories.map(({category, count}) => (
             <div key={category} className="chart-bar">
               <div className="bar-label">{category}</div>
               <div className="bar-container">

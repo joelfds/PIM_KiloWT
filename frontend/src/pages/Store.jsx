@@ -23,14 +23,9 @@ function Store() {
 
   const getCategoryEmoji = (category) => {
     const emojis = {
-      Audio: '🎧',
-      Accessories: '🔌',
-      Keyboards: '⌨️',
-      Cameras: '📷',
-      Monitors: '🖥️',
-      Laptops: '💻'
+      Mugs: '☕'
     }
-    return emojis[category] || '📦'
+    return emojis[category] || '☕'
   }
 
   const getStockBadge = (stock) => {
@@ -44,7 +39,9 @@ function Store() {
     if (product.description) score += 20
     if (product.price !== undefined && product.price !== null) score += 20
     if (product.stock !== undefined && product.stock !== null) score += 20
-    if (Object.keys(product.attributes || {}).length >= 2) score += 20
+    // For mugs, check for standardized attributes: Color, Size, Material
+    const attrs = product.attributes || {}
+    if (attrs.Color && attrs.Size && attrs.Material) score += 20
     return score
   }
 

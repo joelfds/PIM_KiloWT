@@ -6,14 +6,12 @@ function Products() {
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [sortColumn, setSortColumn] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')
   const [selectedProducts, setSelectedProducts] = useState(new Set())
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
-  const [categories, setCategories] = useState([])
   const [statuses] = useState(['Active', 'Draft', 'Inactive'])
 
   useEffect(() => {
@@ -22,14 +20,12 @@ function Products() {
 
   useEffect(() => {
     filterAndSortProducts()
-  }, [products, searchQuery, categoryFilter, statusFilter, sortColumn, sortDirection])
+  }, [products, searchQuery, statusFilter, sortColumn, sortDirection])
 
   const fetchProducts = async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/products')
       setProducts(response.data)
-      const uniqueCategories = [...new Set(response.data.map(p => p.category))]
-      setCategories(uniqueCategories)
       setLoading(false)
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -43,11 +39,9 @@ function Products() {
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         Object.values(p.attributes || {}).some(v => v.toLowerCase().includes(searchQuery.toLowerCase()))
-      const matchesCategory = !categoryFilter || p.category === categoryFilter
       const matchesStatus = !statusFilter || p.status === statusFilter
-      return matchesSearch && matchesCategory && matchesStatus
+      return matchesSearch && matchesStatus
     })
 
     if (sortColumn) {
@@ -75,7 +69,7 @@ function Products() {
     if (product.description) score += 20
     if (product.price !== undefined && product.price !== null) score += 20
     if (product.stock !== undefined && product.stock !== null) score += 20
-    if (Object.keys(product.attributes || {}).length >= 2) score += 20
+    if (Object.keys(product.attributes || {}).length >= 3) score += 20
     return score
   }
 
@@ -162,16 +156,23 @@ function Products() {
     }
   }
 
-  const bulkSync = async () => {
+  const bulkSync = async (ids = Array.from(selectedProducts)) => {
     try {
       await axios.post('http://localhost:3001/api/products/bulk/sync', {
-        ids: Array.from(selectedProducts)
+        ids
       })
-      setSelectedProducts(new Set())
+      if (ids === Array.from(selectedProducts)) {
+        setSelectedProducts(new Set())
+      }
       window.showSavedIndicator && window.showSavedIndicator()
     } catch (error) {
       console.error('Error syncing products:', error)
     }
+  }
+
+  const syncAllChanges = () => {
+    const allIds = filteredProducts.map(p => p.id)
+    bulkSync(allIds)
   }
 
   if (loading) {
@@ -191,16 +192,6 @@ function Products() {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ width: '200px' }}
           />
-          <select
-            className="select"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
           <select
             className="select"
             value={statusFilter}
@@ -227,6 +218,13 @@ function Products() {
           onChange={selectAll}
         />
         <label>Select All</label>
+        <button 
+          className="btn btn-secondary" 
+          style={{marginLeft: '1rem'}}
+          onClick={syncAllChanges}
+        >
+          Sync All Changes
+        </button>
       </div>
 
       <table className="table">
@@ -238,9 +236,6 @@ function Products() {
             </th>
             <th onClick={() => handleSort('name')}>
               Name <span className={`sort-arrow ${sortColumn === 'name' ? 'sort-' + sortDirection : ''}`}>▲</span>
-            </th>
-            <th onClick={() => handleSort('category')}>
-              Category <span className={`sort-arrow ${sortColumn === 'category' ? 'sort-' + sortDirection : ''}`}>▲</span>
             </th>
             <th onClick={() => handleSort('price')}>
               Price <span className={`sort-arrow ${sortColumn === 'price' ? 'sort-' + sortDirection : ''}`}>▲</span>
@@ -258,22 +253,31 @@ function Products() {
           </tr>
         </thead>
         <tbody>
-          {filteredProducts.map(p => {
+{filteredProducts.map(p => {
             const completeness = calculateCompleteness(p)
             const progressClass = completeness < 50 ? 'progress-red' : completeness < 80 ? 'progress-amber' : 'progress-green'
+            const isSelected = selectedProducts.has(p.id)
             return (
-              <tr key={p.id}>
+              <tr 
+                key={p.id}
+                className={isSelected ? 'table-row-selected' : ''}
+                onClick={(e) => {
+                  if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                    toggleProductSelection(p.id)
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
+              >
                 <td>
                   <input
                     type="checkbox"
                     className="checkbox"
-                    checked={selectedProducts.has(p.id)}
-                    onChange={() => toggleProductSelection(p.id)}
+                    checked={isSelected}
+                    onChange={(e) => toggleProductSelection(p.id)}
                   />
                 </td>
                 <td>{p.sku}</td>
                 <td>{p.name}</td>
-                <td>{p.category}</td>
                 <td>${p.price?.toFixed(2) || 'N/A'}</td>
                 <td>{p.stock || 0}</td>
                 <td>
@@ -288,8 +292,14 @@ function Products() {
                   {completeness}%
                 </td>
                 <td>
-                  <button className="btn btn-ghost" onClick={() => openEditModal(p)}>Edit</button>
-                  <button className="btn btn-danger" onClick={() => deleteProduct(p.id)}>Delete</button>
+                  <button className="btn btn-ghost" onClick={(e) => {
+                    e.stopPropagation()
+                    openEditModal(p)
+                  }}>Edit</button>
+                  <button className="btn btn-danger" onClick={(e) => {
+                    e.stopPropagation()
+                    deleteProduct(p.id)
+                  }}>Delete</button>
                 </td>
               </tr>
             )
@@ -332,21 +342,24 @@ function ProductModal({ product, onClose, onSave }) {
     description: product?.description || '',
     price: product?.price || '',
     stock: product?.stock || '',
-    category: product?.category || '',
     status: product?.status || 'Draft',
     imageUrl: product?.imageUrl || '',
-    attributes: product?.attributes || {}
+    color: product?.attributes?.Color || '',
+    size: product?.attributes?.Size || '',
+    material: product?.attributes?.Material || '',
+    handle: product?.attributes?.Handle || 'Yes',
+    dishwasherSafe: product?.attributes?.Dishwasher || 'Safe'
   })
-  const [attributeInputs, setAttributeInputs] = useState(
-    Object.entries(product?.attributes || {}).map(([k, v]) => ({ key: k, value: v })) || []
-  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const attributes = {}
-    attributeInputs.forEach(attr => {
-      if (attr.key && attr.value) attributes[attr.key] = attr.value
-    })
+    const attributes = {
+      Color: formData.color,
+      Size: formData.size,
+      Material: formData.material,
+      Handle: formData.handle,
+      Dishwasher: formData.dishwasherSafe
+    }
 
     const data = { ...formData, attributes }
 
@@ -361,20 +374,6 @@ function ProductModal({ product, onClose, onSave }) {
     } catch (error) {
       console.error('Error saving product:', error)
     }
-  }
-
-  const addAttribute = () => {
-    setAttributeInputs([...attributeInputs, { key: '', value: '' }])
-  }
-
-  const updateAttribute = (index, field, value) => {
-    const newInputs = [...attributeInputs]
-    newInputs[index][field] = value
-    setAttributeInputs(newInputs)
-  }
-
-  const removeAttribute = (index) => {
-    setAttributeInputs(attributeInputs.filter((_, i) => i !== index))
   }
 
   return (
@@ -435,22 +434,6 @@ function ProductModal({ product, onClose, onSave }) {
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label">Category</label>
-            <select
-              className="select"
-              value={formData.category}
-              onChange={(e) => setFormData({...formData, category: e.target.value})}
-            >
-              <option value="">Select Category</option>
-              <option value="Audio">Audio</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Keyboards">Keyboards</option>
-              <option value="Cameras">Cameras</option>
-              <option value="Monitors">Monitors</option>
-              <option value="Laptops">Laptops</option>
-            </select>
-          </div>
-          <div className="form-group">
             <label className="form-label">Status</label>
             <div className="status-pills">
               {['Active', 'Draft', 'Inactive'].map(status => (
@@ -474,29 +457,77 @@ function ProductModal({ product, onClose, onSave }) {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Attributes</label>
-            <div className="attributes-list">
-              {attributeInputs.map((attr, index) => (
-                <div key={index} className="attribute-item">
-                  <input
-                    type="text"
-                    className="input attribute-input"
-                    placeholder="Name"
-                    value={attr.key}
-                    onChange={(e) => updateAttribute(index, 'key', e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    className="input attribute-input"
-                    placeholder="Value"
-                    value={attr.value}
-                    onChange={(e) => updateAttribute(index, 'value', e.target.value)}
-                  />
-                  <button type="button" className="attribute-remove" onClick={() => removeAttribute(index)}>&times;</button>
-                </div>
-              ))}
+            <label className="form-label">Mug Attributes</label>
+            <div className="attributes-grid">
+              <div className="attribute-field">
+                <label>Color</label>
+                <select
+                  className="input"
+                  value={formData.color}
+                  onChange={(e) => setFormData({...formData, color: e.target.value})}
+                >
+                  <option value="">Select Color</option>
+                  <option value="White">White</option>
+                  <option value="Black">Black</option>
+                  <option value="Blue">Blue</option>
+                  <option value="Red">Red</option>
+                  <option value="Green">Green</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Clear">Clear</option>
+                </select>
+              </div>
+              <div className="attribute-field">
+                <label>Size</label>
+                <select
+                  className="input"
+                  value={formData.size}
+                  onChange={(e) => setFormData({...formData, size: e.target.value})}
+                >
+                  <option value="">Select Size</option>
+                  <option value="8oz">8oz</option>
+                  <option value="11oz">11oz</option>
+                  <option value="12oz">12oz</option>
+                  <option value="16oz">16oz</option>
+                  <option value="20oz">20oz</option>
+                </select>
+              </div>
+              <div className="attribute-field">
+                <label>Material</label>
+                <select
+                  className="input"
+                  value={formData.material}
+                  onChange={(e) => setFormData({...formData, material: e.target.value})}
+                >
+                  <option value="">Select Material</option>
+                  <option value="Ceramic">Ceramic</option>
+                  <option value="Stainless Steel">Stainless Steel</option>
+                  <option value="Enamel">Enamel</option>
+                  <option value="Glass">Glass</option>
+                </select>
+              </div>
+              <div className="attribute-field">
+                <label>Handle</label>
+                <select
+                  className="input"
+                  value={formData.handle}
+                  onChange={(e) => setFormData({...formData, handle: e.target.value})}
+                >
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div className="attribute-field">
+                <label>Dishwasher Safe</label>
+                <select
+                  className="input"
+                  value={formData.dishwasherSafe}
+                  onChange={(e) => setFormData({...formData, dishwasherSafe: e.target.value})}
+                >
+                  <option value="Safe">Safe</option>
+                  <option value="Not Safe">Not Safe</option>
+                </select>
+              </div>
             </div>
-            <button type="button" className="btn btn-ghost" onClick={addAttribute}>+ Add attribute</button>
           </div>
           <div className="form-group">
             <button type="submit" className="btn btn-primary">{product ? 'Update' : 'Create'} Product</button>
